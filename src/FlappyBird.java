@@ -46,7 +46,7 @@ public class FlappyBird extends JPanel implements ActionListener , KeyListener{
         int width = pipeWidth;
         int height = pipeHeight;
         Image img;
-        boolean passed = false //checks whether the bird has passed the pipe or not
+        boolean passed = false ;//checks whether the bird has passed the pipe or not
 
         Pipe(Image img){
             this.img = img;
@@ -62,9 +62,13 @@ public class FlappyBird extends JPanel implements ActionListener , KeyListener{
     int gravity = 1;
 
     ArrayList<Pipe> pipes;
+    Random random = new Random();
 
     Timer gameLoop;
     Timer placePipesTimer;
+
+    boolean gameOver = false;
+
 
 
     FlappyBird(){
@@ -77,7 +81,7 @@ public class FlappyBird extends JPanel implements ActionListener , KeyListener{
 
         backgroundImg = new ImageIcon(getClass().getResource("./flappybirdbg.png")).getImage();
         birdImg = new ImageIcon(getClass().getResource("./flappybird.png")).getImage();
-        topPipeImg = new ImageIcon(getClass().getResource("./bottompipe.png")).getImage();
+        topPipeImg = new ImageIcon(getClass().getResource("./toppipe.png")).getImage();
         bottomPipeImg = new ImageIcon(getClass().getResource("./bottompipe.png")).getImage();
         
         //bird
@@ -100,9 +104,19 @@ public class FlappyBird extends JPanel implements ActionListener , KeyListener{
     }
 
     public void placePipes(){
+        int randomPipeY = (int)(pipeY - pipeHeight / 4 - Math.random()*(pipeHeight/2));
+        int openingSpace = boardHeight/4;
+
         Pipe topPipe = new Pipe(topPipeImg);
+        topPipe.y = randomPipeY;
         pipes.add(topPipe);
+
+        Pipe bottomPipe = new Pipe(bottomPipeImg);
+        bottomPipe.y = topPipe.y + pipeHeight + openingSpace;
+        pipes.add(bottomPipe);
     }
+
+
 
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -137,12 +151,20 @@ public class FlappyBird extends JPanel implements ActionListener , KeyListener{
             Pipe pipe = pipes.get(i);
             pipe.x += VelocityX;
         }
+
+        if(bird.y > boardHeight){
+            gameOver = true;
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         move();
         repaint();
+        if(gameOver){
+            placePipesTimer.stop();
+            gameLoop.stop();
+        }
     }
 
     @Override
